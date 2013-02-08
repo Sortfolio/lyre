@@ -1,0 +1,8 @@
+#ignore the build directory
+/pkg
+
+#ignore any compiled gems
+*.gem
+
+#ignore swp files
+*.swp
