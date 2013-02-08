@@ -2,18 +2,22 @@ require 'net/http'
 
 class FakeService
 
-  def self.endpoint
-    @@endpoint || 'http://www.example.com'
+  class << self
+    def endpoint
+      @endpoint || 'example.com'
+    end
+
+    def endpoint=(value)
+      @endpoint = value
+    end
+
+    def call_service
+      http = Net::HTTP.new(endpoint)
+      request = Net::HTTP::Get.new("/")
+      response = http.request(request)
+
+      response.body
+    end
   end
 
-  def self.endpoint=(value)
-    @@endpoint = value
-  end
-
-  def self.call_service
-    http = Net::HTTP.new(self.endpoint)
-    request = Net::HTTP::Get.new("/foo")
-    response = http.request(request)
-    response.body
-  end
 end
