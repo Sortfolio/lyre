@@ -6,16 +6,18 @@ module Lyre
   #NOTE: Not sure this is the right name for this class
   class App < Sinatra::Base
 
-    def self.setup(&block)
-      @@setup_block = block
-    end
+    attr_accessor :host, :port
 
-    def self.teardown(&block)
-      @@teardown_block = block
-    end
+    class << self
+      def setup(&block)
+        @@setup_block = block
+      end
 
-    def self.create
-      self.new! #Sinatra redefines new as new!
+      def teardown(&block)
+        @@teardown_block = block
+      end
+
+      alias_method :create, :new! #Sinatra redefines new as new!, so make it easy to access
     end
 
     def start
@@ -28,22 +30,6 @@ module Lyre
       Lyre::Registry.stop_and_deregister self
       self.instance_eval(&@@teardown_block)
       self
-    end
-
-    def host
-      @host
-    end
-
-    def host=(value)
-      @host = value
-    end
-
-    def port
-      @port
-    end
-
-    def port=(value)
-      @port = value
     end
 
     def endpoint
