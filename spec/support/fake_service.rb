@@ -4,7 +4,7 @@ class FakeService
 
   class << self
     def endpoint
-      @endpoint || 'example.com'
+      @endpoint || 'http://nowhere.example.com'
     end
 
     def endpoint=(value)
@@ -12,7 +12,9 @@ class FakeService
     end
 
     def call_service
-      http = Net::HTTP.new(endpoint)
+      url = URI.parse(endpoint)
+
+      http = Net::HTTP.new(url.host, url.port)
       request = Net::HTTP::Get.new("/")
       response = http.request(request)
 
