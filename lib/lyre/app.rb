@@ -9,12 +9,14 @@ module Lyre
     attr_accessor :host, :port
 
     class << self
+      attr_accessor :setup_block, :teardown_block
+
       def setup(&block)
-        @@setup_block = block
+        self.setup_block = block
       end
 
       def teardown(&block)
-        @@teardown_block = block
+        self.teardown_block = block
       end
 
       alias_method :create, :new! #Sinatra redefines new as new!, so make it easy to access
@@ -22,13 +24,13 @@ module Lyre
 
     def start
       Lyre::Registry.register_and_run self
-      self.instance_eval(&@@setup_block)
+      self.instance_eval(&self.class.setup_block) if self.class.setup_block
       self
     end
 
     def stop
       Lyre::Registry.stop_and_deregister self
-      self.instance_eval(&@@teardown_block)
+      self.instance_eval(&self.class.teardown_block) if self.class.teardown_block
       self
     end
 
