@@ -1,3 +1,6 @@
+#ignore any TODO files
+*.todo
+
 #ignore the build directory
 /pkg
 
