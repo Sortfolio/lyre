@@ -13,5 +13,5 @@ task :default => [:spec]
 
 desc "Clean build artifacts"
 task :clean do
-  `rm *.gem`
+  `rm pkg/*.gem`
 end
