@@ -19,6 +19,7 @@ Gem::Specification.new do |s|
 
   s.add_dependency 'sinatra'
   s.add_dependency 'capybara'
+  s.add_dependency 'thin'
 
   s.add_development_dependency 'rake'
   s.add_development_dependency 'rspec'
