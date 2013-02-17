@@ -25,7 +25,7 @@ module Lyre
     def start
       return if started?
       Lyre::Registry.register_and_run self
-      self.instance_eval(&self.class.setup_block) if self.class.setup_block
+      self.class.setup_block.call(self) if self.class.setup_block
       self.started = true
       self
     end
@@ -33,7 +33,7 @@ module Lyre
     def stop
       return unless started?
       Lyre::Registry.stop_and_deregister self
-      self.instance_eval(&self.class.teardown_block) if self.class.teardown_block
+      self.class.teardown_block.call(self) if self.class.teardown_block
       self.started = false
       self
     end

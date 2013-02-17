@@ -1,11 +1,11 @@
 class FakeServiceLyre < Lyre::App
 
-  setup do
+  setup do |lyre|
     @original_endpoint = FakeService.endpoint
-    FakeService.endpoint = endpoint
+    FakeService.endpoint = lyre.endpoint
   end
 
-  teardown do
+  teardown do |lyre|
     FakeService.endpoint = @original_endpoint
   end
 
