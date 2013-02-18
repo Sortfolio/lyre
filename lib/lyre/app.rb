@@ -1,12 +1,12 @@
-require 'lyre/registry'
-require 'sinatra'
+require 'sinatra/base'
+require 'capybara'
 
 module Lyre
 
   #NOTE: Not sure this is the right name for this class
   class App < Sinatra::Base
 
-    attr_accessor :host, :port
+    attr_accessor :endpoint
 
     class << self
       attr_accessor :setup_block, :teardown_block
@@ -19,37 +19,25 @@ module Lyre
         self.teardown_block = block
       end
 
-      alias_method :create, :new! #Sinatra redefines new as new!, so make it easy to access
+      def boot
+        instance = self.new! #maybe just new
+
+        Capybara::Server.new(instance).tap do |server|
+          server.boot
+
+          instance.endpoint = "http://#{server.host}:#{server.port}"
+          
+          setup_block.call(instance) if setup_block
+        end
+
+        instance
+      end
     end
 
-    def start
-      return if started?
-      Lyre::Registry.register_and_run self
-      self.class.setup_block.call(self) if self.class.setup_block
-      self.started = true
-      self
-    end
-
-    def stop
-      return unless started?
-      Lyre::Registry.stop_and_deregister self
+    def shutdown
       self.class.teardown_block.call(self) if self.class.teardown_block
-      self.started = false
-      self
     end
 
-    def endpoint
-      "http://#{host}:#{port}" #may want to make http/https configurable
-    end
-
-    def started?
-      started
-    end
-
-    private
-
-    attr_accessor :started
-    
   end
 
 end
