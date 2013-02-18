@@ -6,7 +6,7 @@ module Lyre
   #NOTE: Not sure this is the right name for this class
   class App < Sinatra::Base
 
-    attr_accessor :endpoint
+    attr_accessor :host, :port
 
     class << self
       attr_accessor :setup_block, :teardown_block
@@ -25,7 +25,8 @@ module Lyre
         Capybara::Server.new(instance).tap do |server|
           server.boot
 
-          instance.endpoint = "http://#{server.host}:#{server.port}"
+          instance.host = server.host
+          instance.port = server.port
           
           setup_block.call(instance) if setup_block
         end
@@ -38,6 +39,9 @@ module Lyre
       self.class.teardown_block.call(self) if self.class.teardown_block
     end
 
+    def endpoint
+      "http://#{host}:#{port}"
+    end
   end
 
 end
