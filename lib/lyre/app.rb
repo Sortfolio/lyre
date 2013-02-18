@@ -1,5 +1,6 @@
 require 'sinatra/base'
 require 'capybara'
+require 'rack/handler/thin'
 
 module Lyre
 
@@ -22,16 +23,22 @@ module Lyre
       def boot
         instance = self.new! #maybe just new
 
-        Capybara::Server.new(instance).tap do |server|
-          server.boot
-
-          instance.host = server.host
-          instance.port = server.port
-          
-          setup_block.call(instance) if setup_block
-        end
+        instance.startup
 
         instance
+      end
+    end
+
+    def startup
+      with_thin_runner do
+        Capybara::Server.new(self).tap do |server|
+          server.boot
+
+          self.host = server.host
+          self.port = server.port
+        
+          self.class.setup_block.call(self) if self.class.setup_block
+        end
       end
     end
 
@@ -41,6 +48,18 @@ module Lyre
 
     def endpoint
       "http://#{host}:#{port}"
+    end
+
+    private
+
+    def with_thin_runner
+      default_server_process = Capybara.server
+      Capybara.server do |app, port|
+        Rack::Handler::Thin.run(app, :Port => port)
+      end
+      yield
+    ensure
+      Capybara.server(&default_server_process)
     end
   end
 
